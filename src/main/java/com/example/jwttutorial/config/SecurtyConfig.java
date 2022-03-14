@@ -14,11 +14,11 @@ public class SecurtyConfig extends WebSecurityConfigurerAdapter {
                 .ignoring()
                 .antMatchers(
                         "/h2-console/**"
-                        ,"/favicon.ico"
+                        , "/favicon.ico"
                 );
     }
 
-        @Override
+    @Override
     protected void configure(HttpSecurity http) throws Exception {
 
         http
