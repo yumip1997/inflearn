@@ -16,6 +16,11 @@ import java.security.Key;
 import java.util.Date;
 import java.util.stream.Collectors;
 
+//JWT Token 발급 클래스
+//JWT : Header, Payload, Signature로 구성되어 있고 JSON 객체 사용
+//Header : typ(토큰의 타입), alg(해싱 알고리즘, 토큰을 검증할 때 사용하는 Signature 부분에서 사용)
+//Payload : 토큰들에 담을 정보가 들어있으며 정보의 조각을 클레임(claim)이라 함
+//Signature : Header, Payload의 값을 BASE64로 인코딩한 해쉬 값을 담고 있음 (서버에서 만들어내며, 이를 통해 조작된 JWT Token이 요청되었는 지를 확인)
 
 @Component
 public class TokenProvider implements InitializingBean {
@@ -43,6 +48,7 @@ public class TokenProvider implements InitializingBean {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
+    //JWT Token 생성
     public String createToken(Authentication authentication) {
         return Jwts.builder()
                 .setSubject(authentication.getName())
