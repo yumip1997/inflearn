@@ -1,19 +1,23 @@
 package com.example.jwttutorial.jwt;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
 //JWT Token 발급 클래스
@@ -23,11 +27,7 @@ import java.util.stream.Collectors;
 //Signature : Header, Payload의 값을 BASE64로 인코딩한 해쉬 값을 담고 있음 (서버에서 만들어내며, 이를 통해 조작된 JWT Token이 요청되었는 지를 확인)
 
 @Component
-public class TokenProvider implements InitializingBean {
-
-    private final Logger logger = LoggerFactory.getLogger(TokenProvider.class);
-
-    private static final String AUTHORITIES_KEY = "auth";
+public class JwtTokenProvider implements InitializingBean {
 
     private final String secret;
     private final long tokenValidityInMilliseconds;
@@ -35,15 +35,15 @@ public class TokenProvider implements InitializingBean {
     private Key key;
 
     //yml에 설정되어 있는 secret, tokenValidityInSeconds 으로 필드 값을 초기화
-    public TokenProvider(@Value("${jwt.secret}") String secret,
-                         @Value("${jwt.token-validity-in-seconds}") long tokenValidityInSeconds){
+    public JwtTokenProvider(@Value("${jwt.secret}") String secret,
+                            @Value("${jwt.token-validity-in-seconds}") long tokenValidityInSeconds){
 
         this.secret = secret;
         this.tokenValidityInMilliseconds = tokenValidityInSeconds * 1000;
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet(){
         byte[] keyBytes = Decoders.BASE64.decode(secret);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
@@ -52,13 +52,13 @@ public class TokenProvider implements InitializingBean {
     public String createToken(Authentication authentication) {
         return Jwts.builder()
                 .setSubject(authentication.getName())
-                .claim(AUTHORITIES_KEY, getAuthoritiesByDelimiter(authentication, ","))
+                .claim(JwtConstants.AUTHORITIES_KEY, getAuthorities(authentication, ","))
+                .setExpiration(getExpireDate(new Date(), this.tokenValidityInMilliseconds)) //토근 만료 시간 설정
                 .signWith(key, SignatureAlgorithm.ES512)
-                .setExpiration(getExpireDate(new Date(), this.tokenValidityInMilliseconds))
                 .compact();
     }
 
-    private String getAuthoritiesByDelimiter(Authentication authentication, String delimiter){
+    private String getAuthorities(Authentication authentication, String delimiter){
         return authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(delimiter));
@@ -68,4 +68,24 @@ public class TokenProvider implements InitializingBean {
         return new Date(now.getTime() + time);
     }
 
+    public Authentication getAuthentication(String token){
+        Claims claims = getClaims(token);
+        List<SimpleGrantedAuthority> authorities = getAuthoritiesClaims(claims);
+        User principal = new User(claims.getSubject(), "", authorities);
+        return new UsernamePasswordAuthenticationToken(principal, token, authorities);
+    }
+
+    private Claims getClaims(String token){
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    private List<SimpleGrantedAuthority> getAuthoritiesClaims(Claims claims){
+        return Arrays.stream(claims.get(JwtConstants.AUTHORITIES_KEY).toString().split(","))
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
+    }
 }
