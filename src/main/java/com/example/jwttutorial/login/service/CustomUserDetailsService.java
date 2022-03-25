@@ -1,6 +1,6 @@
 package com.example.jwttutorial.login.service;
 
-import com.example.jwttutorial.exception.BusinessException;
+import com.example.jwttutorial.com.exception.BusinessException;
 import com.example.jwttutorial.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;

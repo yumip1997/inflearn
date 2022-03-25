@@ -1,7 +1,7 @@
-package com.example.jwttutorial.jwt.filter;
+package com.example.jwttutorial.com.jwt.filter;
 
-import com.example.jwttutorial.jwt.JwtConstants;
-import com.example.jwttutorial.jwt.util.JwtTokenProvider;
+import com.example.jwttutorial.com.jwt.JwtConstants;
+import com.example.jwttutorial.com.jwt.util.JwtTokenProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;

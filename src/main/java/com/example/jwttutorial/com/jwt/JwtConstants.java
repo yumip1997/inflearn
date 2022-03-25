@@ -1,4 +1,4 @@
-package com.example.jwttutorial.jwt;
+package com.example.jwttutorial.com.jwt;
 
 public class JwtConstants {
 

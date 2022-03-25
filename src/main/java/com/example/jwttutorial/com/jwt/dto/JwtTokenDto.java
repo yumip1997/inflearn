@@ -1,4 +1,4 @@
-package com.example.jwttutorial.jwt.dto;
+package com.example.jwttutorial.com.jwt.dto;
 
 
 import lombok.AllArgsConstructor;

@@ -1,9 +1,9 @@
-package com.example.jwttutorial.config;
+package com.example.jwttutorial.com.security.config;
 
-import com.example.jwttutorial.jwt.util.JwtAccessDeniedHandler;
-import com.example.jwttutorial.jwt.util.JwtAuthenticationEntryPoint;
-import com.example.jwttutorial.jwt.config.JwtSecurityConfig;
-import com.example.jwttutorial.jwt.util.JwtTokenProvider;
+import com.example.jwttutorial.com.jwt.util.JwtAccessDeniedHandler;
+import com.example.jwttutorial.com.jwt.util.JwtAuthenticationEntryPoint;
+import com.example.jwttutorial.com.jwt.config.JwtSecurityConfig;
+import com.example.jwttutorial.com.jwt.util.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;

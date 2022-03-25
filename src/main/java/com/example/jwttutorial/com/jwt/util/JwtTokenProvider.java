@@ -1,7 +1,7 @@
-package com.example.jwttutorial.jwt.util;
+package com.example.jwttutorial.com.jwt.util;
 
-import com.example.jwttutorial.exception.BusinessException;
-import com.example.jwttutorial.jwt.JwtConstants;
+import com.example.jwttutorial.com.exception.BusinessException;
+import com.example.jwttutorial.com.jwt.JwtConstants;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;

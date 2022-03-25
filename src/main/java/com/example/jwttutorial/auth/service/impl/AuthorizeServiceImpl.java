@@ -1,7 +1,7 @@
 package com.example.jwttutorial.auth.service.impl;
 
-import com.example.jwttutorial.jwt.JwtConstants;
-import com.example.jwttutorial.jwt.util.JwtTokenProvider;
+import com.example.jwttutorial.com.jwt.JwtConstants;
+import com.example.jwttutorial.com.jwt.util.JwtTokenProvider;
 import com.example.jwttutorial.login.dto.LoginDto;
 import com.example.jwttutorial.auth.service.AuthorizeService;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,6 @@
 package com.example.jwttutorial.login.controller;
 
-import com.example.jwttutorial.jwt.dto.JwtTokenDto;
+import com.example.jwttutorial.com.jwt.dto.JwtTokenDto;
 import com.example.jwttutorial.login.dto.LoginDto;
 import com.example.jwttutorial.auth.service.AuthorizeService;
 import lombok.RequiredArgsConstructor;
