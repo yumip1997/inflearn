@@ -1,4 +1,4 @@
-package com.example.jwttutorial.entity;
+package com.example.jwttutorial.user.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;

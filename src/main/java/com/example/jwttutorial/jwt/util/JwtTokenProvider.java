@@ -1,8 +1,8 @@
-package com.example.jwttutorial.jwt;
+package com.example.jwttutorial.jwt.util;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.example.jwttutorial.exception.BusinessException;
+import com.example.jwttutorial.jwt.JwtConstants;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.InitializingBean;
@@ -13,6 +13,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.security.Key;
 import java.util.Arrays;
@@ -54,7 +55,7 @@ public class JwtTokenProvider implements InitializingBean {
                 .setSubject(authentication.getName())
                 .claim(JwtConstants.AUTHORITIES_KEY, getAuthorities(authentication, ","))
                 .setExpiration(getExpireDate(new Date(), this.tokenValidityInMilliseconds)) //토근 만료 시간 설정
-                .signWith(key, SignatureAlgorithm.ES512)
+                .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
     }
 
@@ -87,5 +88,21 @@ public class JwtTokenProvider implements InitializingBean {
         return Arrays.stream(claims.get(JwtConstants.AUTHORITIES_KEY).toString().split(","))
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
+    }
+
+    public void validate(String token) throws BusinessException {
+        if(!StringUtils.hasText(token)) return;
+
+        try{
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+        }catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e){
+            throw new BusinessException("잘못된 JWT 서명입니다.");
+        }catch(ExpiredJwtException e){
+            throw new BusinessException("만료된 JWT 서명입니다.");
+        }catch (UnsupportedJwtException e){
+            throw new BusinessException("지원되지 않는 JWT 토근입니다.");
+        }catch(IllegalArgumentException e){
+            throw new BusinessException("JWT 토근이 잘못되었습니다.");
+        }
     }
 }
