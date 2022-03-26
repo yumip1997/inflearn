@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,22 +25,27 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findOneWithAuthoritiesByUsername(username)
-                .map(user -> createUser(username, user))
-                .orElseThrow(() -> new UsernameNotFoundException(username + "을 찾을 수 없습니다."));
+        com.example.jwttutorial.user.entity.User user = userRepository.findOneWithAuthoritiesByUsername(username);
+        return createUser(username, user);
     }
 
     private User createUser(String username, com.example.jwttutorial.user.entity.User user){
-        if(!user.isActivated()){
-            throw new BusinessException(username + "비활성화 user 입니다!");
-        }
+        validateUser(username, user);
 
         List<GrantedAuthority> grantedAuthorityList = user.getAuthorities().stream()
                 .map(authority -> new SimpleGrantedAuthority(authority.getAuthorityName()))
                 .collect(Collectors.toList());
 
         return new User(user.getUsername(), user.getPassword(), grantedAuthorityList);
+    }
 
+    private void validateUser(String username, com.example.jwttutorial.user.entity.User user){
+        if(ObjectUtils.isEmpty(user)){
+            throw new BusinessException("User가 존재하지 않습니다. -> " + username);
+        }
+        if(!user.isActivated()){
+            throw new BusinessException("비활성화 user 입니다! -> " + username);
+        }
     }
 
 }
