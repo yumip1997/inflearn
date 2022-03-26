@@ -22,7 +22,6 @@ public class UserController {
         return ResponseEntity.ok(userService.signUp(userDto));
     }
 
-    //TODO PreAuthorize SecurityConfig에 설정할 수 있는 지 확인해보기
     @PostMapping("/user")
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<User> getUserInfoByUsername(@RequestBody String username){
