@@ -27,6 +27,10 @@ public class JwtFilter extends GenericFilter {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
         String token = getTokenFromRequest(httpServletRequest);
+
+        //TODO 확인필요
+        if(!StringUtils.hasText(token)) return;
+
         String requestURI = httpServletRequest.getRequestURI();
 
         try{
