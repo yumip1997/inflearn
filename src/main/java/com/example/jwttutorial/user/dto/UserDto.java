@@ -1,5 +1,6 @@
 package com.example.jwttutorial.user.dto;
 
+import com.example.jwttutorial.user.utils.annotation.UserValid;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,7 @@ import javax.validation.constraints.Size;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@UserValid
 public class UserDto {
 
     @NotNull
@@ -21,6 +23,10 @@ public class UserDto {
     @NotNull
     @Size(min = 3, max =100)
     private String password;
+
+    @NotNull
+    @Size(min = 3, max =100)
+    private String rePassword;
 
     @NotNull
     @Size(min = 3, max = 50)

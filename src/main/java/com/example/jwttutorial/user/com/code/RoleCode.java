@@ -1,4 +1,4 @@
-package com.example.jwttutorial.user.code;
+package com.example.jwttutorial.user.com.code;
 
 public enum RoleCode {
 

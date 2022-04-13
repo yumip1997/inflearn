@@ -3,7 +3,7 @@ package com.example.jwttutorial.user.Service.impl;
 import com.example.jwttutorial.com.exception.BusinessException;
 import com.example.jwttutorial.com.security.util.SecurityUtil;
 import com.example.jwttutorial.user.Service.UserService;
-import com.example.jwttutorial.user.code.RoleCode;
+import com.example.jwttutorial.user.com.code.RoleCode;
 import com.example.jwttutorial.user.dto.UserDto;
 import com.example.jwttutorial.user.entity.Authority;
 import com.example.jwttutorial.user.entity.User;
