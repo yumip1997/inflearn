@@ -17,19 +17,19 @@ import javax.validation.constraints.Size;
 public class UserDto {
 
     @NotNull
-    @Size(min = 3, max = 50)
+    @Size(min = 2, max = 50, message = "${username.minmax}")
     private String username;
 
     @NotNull
-    @Size(min = 3, max =100)
+    @Size(min = 2, max =100, message = "${password.minmax}")
     private String password;
 
     @NotNull
-    @Size(min = 3, max =100)
+    @Size(min = 2, max =100, message = "${password.minmax}")
     private String rePassword;
 
     @NotNull
-    @Size(min = 3, max = 50)
+    @Size(min = 2, max = 50, message = "${nickname.minmax}")
     private String nickname;
 
 }

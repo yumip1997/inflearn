@@ -1,4 +1,4 @@
-package com.example.jwttutorial.com.exception;
+package com.example.jwttutorial.com.exception.custom;
 
 public class BusinessException extends RuntimeException{
 

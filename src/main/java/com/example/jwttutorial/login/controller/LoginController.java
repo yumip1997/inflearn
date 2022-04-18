@@ -2,7 +2,7 @@ package com.example.jwttutorial.login.controller;
 
 import com.example.jwttutorial.com.jwt.dto.JwtTokenDto;
 import com.example.jwttutorial.login.dto.LoginDto;
-import com.example.jwttutorial.auth.service.AuthorizeService;
+import com.example.jwttutorial.com.jwt.util.service.AuthorizeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

@@ -1,4 +1,4 @@
-package com.example.jwttutorial.auth.service;
+package com.example.jwttutorial.com.jwt.util.service;
 
 import com.example.jwttutorial.login.dto.LoginDto;
 import org.springframework.http.HttpHeaders;

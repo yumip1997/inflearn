@@ -1,6 +1,6 @@
 package com.example.jwttutorial.login.service;
 
-import com.example.jwttutorial.com.exception.BusinessException;
+import com.example.jwttutorial.com.exception.custom.BusinessException;
 import com.example.jwttutorial.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -43,6 +43,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         if(ObjectUtils.isEmpty(user)){
             throw new BusinessException("User가 존재하지 않습니다. -> " + username);
         }
+
         if(!user.isActivated()){
             throw new BusinessException("비활성화 user 입니다! -> " + username);
         }

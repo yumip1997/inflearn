@@ -1,6 +1,6 @@
 package com.example.jwttutorial.user.controller;
 
-import com.example.jwttutorial.user.Service.UserService;
+import com.example.jwttutorial.user.service.UserService;
 import com.example.jwttutorial.user.dto.UserDto;
 import com.example.jwttutorial.user.entity.User;
 import lombok.RequiredArgsConstructor;

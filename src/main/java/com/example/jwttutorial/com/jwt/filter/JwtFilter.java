@@ -27,6 +27,7 @@ public class JwtFilter extends GenericFilter {
     private void setAuthenticationByToken(HttpServletRequest httpServletRequest){
         String token = getTokenFromRequest(httpServletRequest);
         if(!StringUtils.hasText(token)) return;
+
         jwtTokenProvider.validate(token);
         //TODO 토근을 재생성하는 건가??
         Authentication authentication = jwtTokenProvider.getAuthentication(token);

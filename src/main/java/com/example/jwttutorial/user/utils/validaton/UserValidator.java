@@ -1,12 +1,17 @@
 package com.example.jwttutorial.user.utils.validaton;
 
+import com.example.jwttutorial.user.service.UserService;
 import com.example.jwttutorial.user.utils.annotation.UserValid;
 import com.example.jwttutorial.user.dto.UserDto;
+import lombok.RequiredArgsConstructor;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
+@RequiredArgsConstructor
 public class UserValidator implements ConstraintValidator<UserValid, UserDto> {
+
+    private final UserService userService;
 
     @Override
     public boolean isValid(UserDto userDto, ConstraintValidatorContext constraintValidatorContext) {
@@ -17,6 +22,10 @@ public class UserValidator implements ConstraintValidator<UserValid, UserDto> {
         }
 
         //중복확인 로직 수행
+        if(userService.existsByUsername(userDto)){
+            addConstraintViolation(constraintValidatorContext, UserErrorMsg.ALREADY_EXIST_USER);
+            return false;
+        }
 
         return true;
     }
