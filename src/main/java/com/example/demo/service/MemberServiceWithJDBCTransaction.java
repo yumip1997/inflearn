@@ -14,7 +14,7 @@ import java.sql.SQLException;
  */
 @Slf4j
 @RequiredArgsConstructor
-public class MemberServiceV2 {
+public class MemberServiceWithJDBCTransaction {
 
     private final DataSource dataSource;
     private final MemberRepositoryV2 memberRepositoryV2;
