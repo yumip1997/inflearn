@@ -56,28 +56,27 @@ Connection connection = dataSource.getConnection();
 3. connection을 반환한다.
 
 ```java
-	public void doBizLogic() throws SQLException{
-			DataSoruce dataSource = new DriverManagerDataSource(URL, USERNAME, PASSWORD);
-			Connection connection = dataSource.getConnection();
-			try{
-					connection.setAutoCommit(false);
-				  **//비즈니스 로직 메서드 실행**
-				  connection.commit();
-			}catch (Exception e){
-		     connection.rollback();
-		     throw new IllegalStateException(e);
-		  }finally {
-					if(connection != null){
-			        try{
-		              connection.setAutoCommit(true);
-	                connection.close();
-	            }catch (Exception e){
-	                log.info("error", e);
-	            }
-	        }
-		  }
-	}
-
+    public void doBizLogic() throws SQLException{
+        DataSoruce dataSource = new DriverManagerDataSource(URL, USERNAME, PASSWORD);
+        Connection connection = dataSource.getConnection();
+        try{
+            connection.setAutoCommit(false);
+		**//비즈니스 로직 메서드 실행**
+            connection.commit();
+        }catch (Exception e){
+            connection.rollback();
+            throw new IllegalStateException(e);
+        }finally {
+            if(connection != null){
+                try{
+                    connection.setAutoCommit(true);
+                    connection.close();
+                }catch (Exception e){
+                    log.info("error", e);
+                }
+            }
+        }
+    }
 ```
 
 이러한 방식으로 트랜잭션 처리를 했을 경우 문제점은 다음과 같다. 먼저, 핵심 로직에 부가기능이 혼합되어 있다는 점이다. 즉, 비즈니스 메서드 안에 트랜잭션 처리 코드가 섞여있다는 것이다. 두 번째, 트랜잭션 처리가 필요한 비즈니스 로직 실행 시 위와 같은 코드가 반복된다는 것이다. 마지막으로, 트랜잭션 처리가 필요한 매서드와 불필요한 메서드를 모두 만들어야한다는 것이다. 두 메서드의 로직은 동일하지만 단지 connection을 파라미터로 받는 메서드와 그렇지 않는 메서드를 두 개 만들어야한다.
