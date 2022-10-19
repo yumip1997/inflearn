@@ -25,6 +25,7 @@ import static com.example.demo.connection.ConnectionConst.*;
 @Slf4j
 @SpringBootTest
 class MemberServiceWithTransactionAOPTest2 {
+
     public static final String MEMBER_A = "memberA";
     public static final String MEMBER_B = "memberB";
     public static final String MEMBER_EX = "ex";
