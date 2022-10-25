@@ -1,6 +1,8 @@
 package com.example.lock_practice.product.entity;
 
 import com.example.lock_practice.com.exception.BusinessException;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,7 +13,9 @@ import static com.example.lock_practice.com.exception.message.stock.StockExcepti
 
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
+@Builder
 public class Product{
 
     @Id
@@ -28,10 +32,16 @@ public class Product{
         this.quantity = quantity;
     }
 
-    public Product getProductDecreasedQuantity(String productId, int quantity){
+    public Product ofDecreasedQuantity(int quantity){
         if(this.quantity < quantity){
             throw new BusinessException(NOT_IN_STOCK_MESSAGE);
         }
-        return new Product(productId, this.quantity - quantity);
+
+        return Product.builder()
+                .productId(this.productId)
+                .productName(this.productName)
+                .salePrice(this.salePrice)
+                .quantity(this.quantity - quantity)
+                .build();
     }
 }
