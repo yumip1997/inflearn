@@ -17,16 +17,15 @@ public class StockService {
     private final ProductService productService;
 
     @RedissonLockAno
-    public List<Product> decreaseStockList(List<ProductDto> productDtoList){
+    public List<Product> decreaseStockList(List<ProductDto> productDtoList) {
         return productDtoList.stream()
                 .map(this::decreaseStock)
                 .collect(Collectors.toList());
     }
 
-    public Product decreaseStock(ProductDto productDto){
+    public Product decreaseStock(ProductDto productDto) {
         Product product = productService.getProductById(productDto.getProductId());
         Product productDecreasedQuantity = product.ofDecreasedQuantity(productDto.getQuantity());
-
         return productService.saveAndFlush(productDecreasedQuantity);
     }
 

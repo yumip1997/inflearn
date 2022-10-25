@@ -36,9 +36,43 @@ class OrderServiceTest {
     }
 
     @Test
+    void test(){
+        ProductDto sample = getSample();
+        List<ProductDto> productDtoList = new ArrayList<>();
+        productDtoList.add(sample);
+
+        orderService.order(productDtoList);
+    }
+
+    @Test
+    void test1(){
+        executeStr();
+    }
+
+    String executeStr(){
+        String a = null;
+        try{
+            return getNameStr();
+        }finally {
+            System.out.println("finally 호출");
+        }
+    }
+    String getNameStr(){
+        System.out.println("메서도 호출");
+        hook();
+        return "name";
+    }
+
+    void hook(){
+        System.out.println("로직...");
+    }
+
+    @Test
     void 다중요청_테스트_재고수만큼주문() throws InterruptedException {
         ProductDto sample = getSample();
         List<ProductDto> productDtoList = new ArrayList<>();
+        productDtoList.add(sample);
+
         Product product = productService.getProductById(sample.getProductId());
         int threadCount = product.getQuantity();
 
