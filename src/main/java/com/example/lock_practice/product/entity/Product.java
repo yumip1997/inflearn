@@ -1,6 +1,7 @@
 package com.example.lock_practice.product.entity;
 
 import com.example.lock_practice.com.exception.BusinessException;
+import com.example.lock_practice.com.exception.SoldOutException;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -34,7 +35,7 @@ public class Product{
 
     public Product ofDecreasedQuantity(int quantity){
         if(this.quantity < quantity){
-            throw new BusinessException(NOT_IN_STOCK_MESSAGE);
+            throw new SoldOutException(NOT_IN_STOCK_MESSAGE);
         }
 
         return Product.builder()

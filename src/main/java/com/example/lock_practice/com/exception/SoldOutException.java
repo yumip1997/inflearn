@@ -1,6 +1,6 @@
 package com.example.lock_practice.com.exception;
 
-public class SoldOutException extends RuntimeException{
+public class SoldOutException extends BusinessException{
 
     public SoldOutException() {
     }
