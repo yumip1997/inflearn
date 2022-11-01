@@ -1,4 +1,4 @@
-package com.example.lock_practice.com.lock;
+package com.example.shoppingmall.com.lock;
 
 import java.util.List;
 

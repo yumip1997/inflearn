@@ -1,8 +1,8 @@
-package com.example.lock_practice.com.lock;
+package com.example.shoppingmall.com.lock;
 
-import com.example.lock_practice.com.exception.BusinessException;
-import com.example.lock_practice.com.exception.DataException;
-import com.example.lock_practice.com.lock.annotation.RedissonLockAno;
+import com.example.shoppingmall.com.exception.DataException;
+import com.example.shoppingmall.com.exception.message.com.CommonExceptionMessage;
+import com.example.shoppingmall.com.lock.annotation.RedissonLockAno;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -22,8 +22,6 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.example.lock_practice.com.exception.message.com.CommonExceptionMessage.LOCK_ACQUIRE_FAIL;
-
 @Aspect
 @Component
 @RequiredArgsConstructor
@@ -33,7 +31,7 @@ public class RedissonLockAspect {
     private final RedissonClient redissonClient;
     private final PlatformTransactionManager transactionManager;
 
-    @Pointcut("@annotation(com.example.lock_practice.com.lock.annotation.RedissonLockAno)")
+    @Pointcut("@annotation(com.example.shoppingmall.com.lock.annotation.RedissonLockAno)")
     private void RedissonLockAno(){}
 
     @Around("RedissonLockAno() && args(arg,..)")
@@ -44,7 +42,7 @@ public class RedissonLockAspect {
         try {
             boolean res = multiLock.tryLock(annotation.waitTime(), annotation.leaseTime(), annotation.timeUnit());
             if(!res){
-                throw new DataException(LOCK_ACQUIRE_FAIL);
+                throw new DataException(CommonExceptionMessage.LOCK_ACQUIRE_FAIL);
             }
             return executeWithTransaction(joinPoint);
         } catch (InterruptedException e) {

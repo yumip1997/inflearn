@@ -1,4 +1,4 @@
-package com.example.lock_practice.com.lock.annotation;
+package com.example.shoppingmall.com.lock.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
