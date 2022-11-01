@@ -1,4 +1,4 @@
-package com.example.lock_practice.com.utils;
+package com.example.shoppingmall.com.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
