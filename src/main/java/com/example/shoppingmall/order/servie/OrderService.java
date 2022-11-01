@@ -1,11 +1,11 @@
-package com.example.lock_practice.order.servie;
+package com.example.shoppingmall.order.servie;
 
-import com.example.lock_practice.order.dto.OrderProductDto;
-import com.example.lock_practice.order.dto.OrderResponseDto;
-import com.example.lock_practice.product.entity.Product;
-import com.example.lock_practice.stock.service.StockService;
+import com.example.shoppingmall.stock.service.StockService;
+import com.example.shoppingmall.order.dto.OrderProductDto;
+import com.example.shoppingmall.order.dto.OrderResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -15,6 +15,7 @@ public class OrderService {
 
     private final StockService stockService;
 
+    @Transactional
     public OrderResponseDto order(List<OrderProductDto> orderProductDtoList){
         return OrderResponseDto.of(stockService.decreaseStockList(orderProductDtoList));
     }

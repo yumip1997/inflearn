@@ -1,4 +1,4 @@
-package com.example.lock_practice.order.dto;
+package com.example.shoppingmall.order.dto;
 
 import lombok.Builder;
 import lombok.Getter;
