@@ -1,4 +1,4 @@
-package com.example.lock_practice.com.exception.message.com;
+package com.example.shoppingmall.com.exception.message.com;
 
 public class CommonExceptionMessage {
 

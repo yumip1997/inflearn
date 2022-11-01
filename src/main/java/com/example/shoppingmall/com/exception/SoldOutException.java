@@ -1,4 +1,4 @@
-package com.example.lock_practice.com.exception;
+package com.example.shoppingmall.com.exception;
 
 public class SoldOutException extends BusinessException{
 

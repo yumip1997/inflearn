@@ -1,4 +1,4 @@
-package com.example.lock_practice.com.exception.message.product;
+package com.example.shoppingmall.com.exception.message.product;
 
 public class ProductExceptionMessage {
 
