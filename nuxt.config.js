@@ -51,6 +51,6 @@ export default {
   //env config
   env : {
     baseURL : process.env.NODE_ENV == 'production' ?
-      'https://my-json-server.typicode.com/yumip1997/learn-nuxt-api' : 'http://localhost:3000',
+      'https://my-json-server.typicode.com/yumip1997/learn-nuxt-api' : 'https://dummyjson.com',
   }
 }

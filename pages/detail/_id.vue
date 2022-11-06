@@ -4,13 +4,13 @@
       <div class="main-panel">
         <img
           class="product-image"
-          :src="product.imageUrl"
-          :alt="product.name"
+          :src="product.thumbnail"
+          :alt="product.title"
         />
       </div>
       <div class="side-panel">
-        <p class="name">{{ product.name }}</p>
-        <p class="price">{{ product.price }}</p>
+        <p class="name">{{ product.title }}</p>
+        <p class="price">$ {{product.price }}</p>
         <button type="button" @click="addToCart">Add to Cart</button>
       </div>
     </div>
@@ -18,15 +18,16 @@
 </template>
 
 <script>
-import {createCartItem, fetchProductById} from "~/api";
+import {createCartItem} from "~/api/cart/CartApi";
+import {fetchProductById} from "~/api/product/ProductApi";
 
 export default {
   name: "_id.vue",
 
   async asyncData({params}){
-    const response = await fetchProductById(params.id)
+    const {data} = await fetchProductById(params.id)
     return {
-      product : response.data
+      product : data
     }
   },
 

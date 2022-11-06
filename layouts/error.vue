@@ -6,7 +6,10 @@
 
 <script>
 export default {
-  name: "TheError"
+  name: "TheError",
+  props : {
+    error : Object
+  }
 }
 </script>
 

@@ -1,15 +1,12 @@
 <template>
   <div class="list-wrapper">
     <ul>
-      <li v-for="(cartItem) in $store.state.cartItems"
+      <li v-for="(cartItem) in cartItems"
           :key="cartItem.id"
           class="list-item">
-        <img :src="cartItem.imageUrl"
-             :alt="cartItem.name"
-             class="thumbnail">
         <div class="description">
-          <p>{{ cartItem.name }}</p>
-          <span>{{ cartItem.price }}</span>
+          <p>{{ cartItem.title }}</p>
+          <span>$ {{ cartItem.price }}</span>
         </div>
       </li>
     </ul>
@@ -17,22 +14,17 @@
 </template>
 
 <script>
-import {FETCH_CART_ITEMS} from "~/store";
+import {FETCH_CART_ITEMS} from "~/store"
+import {mapGetters} from 'vuex'
 
 export default {
   name: "CartList",
+  computed :{
+    ...mapGetters(['cartItems'])
+  },
   async fetch(){
-    const check = `${process.server}` === "true" ? "server" : "browser"
-    console.log("fetch : " + check)
     await this.$store.dispatch(FETCH_CART_ITEMS)
   },
-  // async created(){
-  //   //첫 화면 진입시
-  //   //server 쪽에서도 호출, browser 쪽에서도 호출
-  //   const check = `${process.server}` === "true" ? "server" : "browser"
-  //   console.log("created : " + check)
-  //   await this.$store.dispatch(FETCH_CART_ITEMS)
-  // }
 }
 </script>
 

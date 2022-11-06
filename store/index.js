@@ -1,4 +1,4 @@
-import {fetchCartItems} from "~/api"
+import {fetchCartItems} from "~/api/cart/CartApi";
 
 export const FETCH_CART_ITEMS = 'FETCH_CART_ITEMS'
 
@@ -19,19 +19,26 @@ export const mutations = {
   }
 }
 
+
 export const actions = {
   async [FETCH_CART_ITEMS]({commit}) {
-    const { data } = await fetchCartItems()
+    const userId = "1"
+    const { data } = await fetchCartItems(userId)
+    console.log(data)
     commit(
       'setCartItems',
-      data.map((item) => ({
-        ...item,
-        imageUrl : `${item.imageUrl}?random=${Math.random()}`
-      }))
+      data.products
     )
   },
   async nuxtServerInit(storeContext, nuxtContext){
     await storeContext.dispatch(FETCH_CART_ITEMS)
   }
 }
+
+export const getters = {
+  cartItems(state){
+    return state.cartItems
+  }
+}
+
 
