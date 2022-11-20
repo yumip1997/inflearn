@@ -15,7 +15,7 @@ const makeConfig = param => param ? {params : param} : null
 const postApi = (url, param) => {
   return instance.post(url, param)
     .then(res => res)
-    .catch(console.log)
+    .catch(error => error)
 }
 
 export {getApi, postApi}
