@@ -27,6 +27,7 @@ export default {
   buildModules: [
     // https://go.nuxtjs.dev/eslint
     '@nuxtjs/eslint-module',
+    '@nuxtjs/vuetify'
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
@@ -52,5 +53,7 @@ export default {
   env : {
     baseURL : process.env.NODE_ENV == 'production' ?
       'https://my-json-server.typicode.com/yumip1997/learn-nuxt-api' : 'https://dummyjson.com',
-  }
+  },
+
+  loading : '~/components/loading.vue',
 }
