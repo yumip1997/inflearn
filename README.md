@@ -40,11 +40,10 @@ Connection connection = dataSource.getConnection();
 
 ## 트랜잭션
 
- Spring AOP 트랜잭션 - cud 행위들의 집합을 실행하고, 행위들의 실행 중 unchecked exception이 발생하면 모두 다 rollback시키고 정상적으로 실행 완료되면 commit 시킨다.
+트랜잭션 - cud 행위들의 집합을 실행하고, 행위들의 실행 중 unchecked exception이 발생하면 모두 다 rollback시키고 정상적으로 실행 완료되면 commit 시킨다. 기본적으로 unchecked 예외가 발생하면 cud 행위들의 집합은 모두 다 롤백된다. checked 예외가 발생하면 롤백되지 않고 commit된다. 하지만 비즈니스 상황에 따라 checked 예외가 발생했을 때도 롤백해야할 수도 있다. 이 경우 트랜잭션 옵션 중 rollbackFor를 사용하여 롤백되어야하는 checked 예외를 정의해주면 된다.
 
 - rollback 되는 예외 - unchecked exception
 - commit 되는 예외 - checked exception
-
 ### JDBC 트랜잭션
 
 트랜잭션으로 묶인 cud 메서드들은 하나의 connection에서 실행되는데, 이를 위해서 cud 메서드들은 매개변수로 connection을 받아야 한다. 
