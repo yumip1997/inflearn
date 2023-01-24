@@ -40,7 +40,7 @@ Connection connection = dataSource.getConnection();
 
 ## 트랜잭션
 
-트랜잭션 - cud 행위들의 집합을 실행하고, 행위들의 실행 중 unchecked exception이 발생하면 모두 다 rollback시키고 정상적으로 실행 완료되면 commit 시킨다.
+ Spring AOP 트랜잭션 - cud 행위들의 집합을 실행하고, 행위들의 실행 중 unchecked exception이 발생하면 모두 다 rollback시키고 정상적으로 실행 완료되면 commit 시킨다.
 
 - rollback 되는 예외 - unchecked exception
 - commit 되는 예외 - checked exception
