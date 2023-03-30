@@ -1,7 +1,7 @@
 package com.example.hello.propagation;
 
-import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
+import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
