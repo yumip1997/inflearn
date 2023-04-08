@@ -57,13 +57,16 @@ public class BasicTxText {
     void double_commit(){
         log.info("트랜잭션1 시작");
         TransactionStatus transaction1 = txManager.getTransaction(new DefaultTransactionAttribute());
+        log.info("transaction1.isNewTransaction()={}", transaction1.isNewTransaction());
 
         log.info("트랜잭션1 커밋 시작");
         txManager.commit(transaction1);
         log.info("트랜잭션1 커밋 완료");
+        // 커밋이 완료되면 커넥션 반환
 
         log.info("트랜잭션2 시작");
         TransactionStatus transaction2 = txManager.getTransaction(new DefaultTransactionAttribute());
+        log.info("transaction1.isNewTransaction()={}", transaction2.isNewTransaction());
 
         log.info("트랜잭션2 커밋 시작");
         txManager.commit(transaction2);
@@ -122,18 +125,22 @@ public class BasicTxText {
     }
 
     @Test
-    void outer_commit(){
-        TransactionStatus inner = txManager.getTransaction(new DefaultTransactionAttribute());
-        log.info("트랜잭션 커밋");
-        txManager.commit(inner);
-
-        inner_commit();
-    }
-
     void inner_commit(){
-        log.info("호출된 트랜잭션 커밋");
+        log.info("외부 트랜잭션 시작");
+        TransactionStatus outer = txManager.getTransaction(new DefaultTransactionAttribute());
+        log.info("outer.isNewTransaction()={}", outer.isNewTransaction());
+
+        log.info("내부 트랜잭션 시작");
         TransactionStatus inner = txManager.getTransaction(new DefaultTransactionAttribute());
+        log.info("inner.isNewTransaction()={}", inner.isNewTransaction());
+
+        log.info("내부 트랜잭션 커밋");
         txManager.commit(inner);
+        // 참여한 트랜잭션의 경우 즉, 내부 트랜잭션의 경우 실제 DB 커밋은 일어나지 않음
+
+        log.info("외부 트랜잭션 커밋");
+        txManager.commit(outer);
+        // 실제 DB 커밋이 일어난다.
     }
 
     @Test
