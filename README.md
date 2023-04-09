@@ -83,7 +83,7 @@ static class CallService{
     }
 ```
 
-```java
+```markdown
 2023-03-30 14:46:18.248  INFO 9992 --- [    Test worker] c.h.springtx.apply.InternalCallV1Test    : call external
 2023-03-30 14:46:18.248  INFO 9992 --- [    Test worker] c.h.springtx.apply.InternalCallV1Test    : tx active = false
 2023-03-30 14:46:18.248  INFO 9992 --- [    Test worker] c.h.springtx.apply.InternalCallV1Test    : current tx readonly = false
@@ -97,15 +97,19 @@ static class CallService{
 3. 실제 객체의 internal 메서드가 호출된다. (트랜잭션 프록시 객체가 아니기에, 트랜잭션이 적용되어 있지 않다.)
 
 ## 트랜잭션 전파
+### 기본 개념
 - 물리 트랜잭션 : 데이터베이스에 적용되는 트랜잭션
 - 논리 트랜잭션 : 트랜잭션 매너지를 통해 트랜잭션을 사용하는 단위
 -> 논리 트랜잭션들은 하나의 물리 트랜잭션으로 묶인다.
 
-- 원칙
+### 원칙
 1. 모든 논리 트랜잭션이 커밋되어야 물리 트랜잭션이 커밋된다.
 2. 하나의 논리 트랜잭션이라도 롤백되면 물리 트랜잭션은 롤백된다.
 
+### Case
 - 처음 트랜잭션을 시작한 외부 트랜잭션이 실제 물리 트랜잭션을 관리하도록 한다.
+
+### REQUIRES
 1. 내부 트랜잭션 커밋 -> 외부 트랜잭션 커밋
    물리 트랜잭션은 커밋 된다. 즉, 트랜잭션의 작업 결과가 DB에 반영된다.
 2. 내부 트랜잭션 커밋 -> 외부 트랜잭션 롤백
@@ -115,7 +119,8 @@ static class CallService{
 4. 내부 트랜잭션 롤백 -> 외부 트랜잭션 롤백
    물리 트랜잭션은 롤백 된다. 즉, 트랜잭션의 작업 결과가 DB에 반영되지 않는다.
    
-###  REQUIRED 전파 레벨 내부 롤백, 외부 커밋 로그
+- Case 별 로그
+2. 내부 트랜잭선 롤백 -> 외부 트랜잭션 커밋
 ```
         외부 트랜잭션 시작
         Creating new transaction with name [null]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT
@@ -135,3 +140,44 @@ static class CallService{
         Rolling back JDBC transaction on Connection [HikariProxyConnection@863026773 wrapping conn0: url=jdbc:h2:mem:fbdbc658-2e98-486e-b554-b90b3c3b3f17 user=SA]
         Releasing JDBC Connection [HikariProxyConnection@863026773 wrapping conn0: url=jdbc:h2:mem:fbdbc658-2e98-486e-b554-b90b3c3b3f17 user=SA] after transaction
 ```
+- 내부 트랜잭션 롤백 시, 트랜잭션 동기화 매니저에 rollbackOnly = true 라는 표시를 해둔다.  
+- 외부 트랜잭션이 실제 DB 커넥션에 실제 커밋을 호출 할 때, 트랜잭션 동기화 매니저에 rollbackOnly를 확인한다.
+- rollbackOnly = true 이면, 물리 트랜잭션이 롤백되고 UnexpectedRollbackException 런타임 예외를 던진다. 
+
+### REQUIRES_NEW
+REQUIRES_NEW 옵션을 사용할 경우, 진행 중인 트랜잭션은 보류되고 새로운 트랜잭션이 생성된다. 즉 DB 커넥션을 새로 획득되고, 물리 트랜잭션도 새로 시작되는 것이다.
+1. 내부 트랜잭션 커밋 -> 외부 트랜잭션 커밋
+   내부 트랜잭션의 물리 트랜잭션은 커밋되고, 외부 트랜잭션의 물리 트랜잭션도 커밋된다.
+2. 내부 트랜잭션 커밋 -> 외부 트랜잭션 롤백
+   내부 트랜잭션의 물리 트랜잭션은 커밋되고, 외부 트랜잭션의 물리 트랜잭션은 롤백된다.
+3. 내부 트랜잭션 롤백 -> 외부 트랜잭션 커밋
+   내부 트랜잭션의 물리 트랜잭션은 롤백되고, 외부 트랜잭션의 물리 트랜잭션은 커밋된다.
+4. 내부 트랜잭션 롤백 -> 외부 트랜잭션 롤백
+   내부 트랜잭션의 물리 트랜잭션은 롤백되고, 외부 트랜잭션의 물리 트랜잭션도 롤백다.
+   
+- Case 별 로그
+2. 내부 트랜잭션 롤백 -> 외부 트랜잭션 커밋
+```markdown
+2023-04-09 16:51:17.192  INFO 11632 --- [    Test worker] c.example.hello.propagation.BasicTxText  : 외부 트랜잭션 시작
+2023-04-09 16:51:17.195 DEBUG 11632 --- [    Test worker] o.s.j.d.DataSourceTransactionManager     : Creating new transaction with name [null]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT
+2023-04-09 16:51:17.195 DEBUG 11632 --- [    Test worker] o.s.j.d.DataSourceTransactionManager     : Acquired Connection [HikariProxyConnection@1021813588 wrapping conn0: url=jdbc:h2:mem:4fedfa0a-cdaf-4579-9abc-c558d65d6c76 user=SA] for JDBC transaction
+2023-04-09 16:51:17.198 DEBUG 11632 --- [    Test worker] o.s.j.d.DataSourceTransactionManager     : Switching JDBC Connection [HikariProxyConnection@1021813588 wrapping conn0: url=jdbc:h2:mem:4fedfa0a-cdaf-4579-9abc-c558d65d6c76 user=SA] to manual commit
+2023-04-09 16:51:17.198  INFO 11632 --- [    Test worker] c.example.hello.propagation.BasicTxText  : outer.isNewTransaction()=true
+2023-04-09 16:51:17.198  INFO 11632 --- [    Test worker] c.example.hello.propagation.BasicTxText  : 내부 트랜잭션 시작
+2023-04-09 16:51:17.199 DEBUG 11632 --- [    Test worker] o.s.j.d.DataSourceTransactionManager     : Suspending current transaction, creating new transaction with name [null]
+2023-04-09 16:51:17.199 DEBUG 11632 --- [    Test worker] o.s.j.d.DataSourceTransactionManager     : Acquired Connection [HikariProxyConnection@1618269752 wrapping conn1: url=jdbc:h2:mem:4fedfa0a-cdaf-4579-9abc-c558d65d6c76 user=SA] for JDBC transaction
+2023-04-09 16:51:17.199 DEBUG 11632 --- [    Test worker] o.s.j.d.DataSourceTransactionManager     : Switching JDBC Connection [HikariProxyConnection@1618269752 wrapping conn1: url=jdbc:h2:mem:4fedfa0a-cdaf-4579-9abc-c558d65d6c76 user=SA] to manual commit
+2023-04-09 16:51:17.199  INFO 11632 --- [    Test worker] c.example.hello.propagation.BasicTxText  : inner.isNewTransaction()=true
+2023-04-09 16:51:17.200  INFO 11632 --- [    Test worker] c.example.hello.propagation.BasicTxText  : 내부 트랜잭션 롤백
+2023-04-09 16:51:17.200 DEBUG 11632 --- [    Test worker] o.s.j.d.DataSourceTransactionManager     : Initiating transaction rollback
+2023-04-09 16:51:17.200 DEBUG 11632 --- [    Test worker] o.s.j.d.DataSourceTransactionManager     : Rolling back JDBC transaction on Connection [HikariProxyConnection@1618269752 wrapping conn1: url=jdbc:h2:mem:4fedfa0a-cdaf-4579-9abc-c558d65d6c76 user=SA]
+2023-04-09 16:51:17.201 DEBUG 11632 --- [    Test worker] o.s.j.d.DataSourceTransactionManager     : Releasing JDBC Connection [HikariProxyConnection@1618269752 wrapping conn1: url=jdbc:h2:mem:4fedfa0a-cdaf-4579-9abc-c558d65d6c76 user=SA] after transaction
+2023-04-09 16:51:17.201 DEBUG 11632 --- [    Test worker] o.s.j.d.DataSourceTransactionManager     : Resuming suspended transaction after completion of inner transaction
+2023-04-09 16:51:17.202 DEBUG 11632 --- [    Test worker] o.s.j.d.DataSourceTransactionManager     : Initiating transaction commit
+2023-04-09 16:51:17.202 DEBUG 11632 --- [    Test worker] o.s.j.d.DataSourceTransactionManager     : Committing JDBC transaction on Connection [HikariProxyConnection@1021813588 wrapping conn0: url=jdbc:h2:mem:4fedfa0a-cdaf-4579-9abc-c558d65d6c76 user=SA]
+2023-04-09 16:51:17.202 DEBUG 11632 --- [    Test worker] o.s.j.d.DataSourceTransactionManager     : Releasing JDBC Connection [HikariProxyConnection@1021813588 wrapping conn0: url=jdbc:h2:mem:4fedfa0a-cdaf-4579-9abc-c558d65d6c76 user=SA] after transaction
+```
+- 외부 트랜잭션 시작
+- 내부 트랜잭션 시작 시, 이미 진행 중인 트랜잭션을 잠시 보류 하고, 새로운 트랜잭션이 생성된다. (Suspending current transaction, creating new transaction)
+- 내부 트랜잭션 롤백 시, 해당 물리 트랜잭션은 롤백되고 커넥션이 반환된다. (Releasing JDBC Connection)
+- 외부 트랜잭션이 다시 시작되고(Resuming suspended transaction), 해당 물리 트랜잭션이 커밋되고 커넥션이 반환된다. (Releasing JDBC Connection)

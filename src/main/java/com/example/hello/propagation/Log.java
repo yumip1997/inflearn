@@ -10,17 +10,18 @@ import javax.persistence.Id;
 @Entity
 @Getter
 @Setter
-public class Member {
+public class Log {
 
     @Id @GeneratedValue
     private Long id;
-    private String username;
+    private String message;
 
-    public Member(){
+    public Log(){
 
     }
 
-    public Member(String username) {
-        this.username = username;
+    public Log(String message){
+        this.message = message;
     }
+
 }

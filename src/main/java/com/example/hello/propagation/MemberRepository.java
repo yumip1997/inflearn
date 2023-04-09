@@ -1,10 +1,12 @@
 package com.example.hello.propagation;
 
-import javax.persistence.EntityManager;
-import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.persistence.EntityManager;
+import java.util.Optional;
 
 @Slf4j
 @Repository
@@ -13,9 +15,16 @@ public class MemberRepository {
 
     private final EntityManager em;
 
-    @Transactional
+    //@Transactional
     public void save(Member member){
-        log.info("member 저장");
+        log.info("MemberRepository : member 저장");
         em.persist(member);
+    }
+
+    public Optional<Member> find(String username){
+        return em.createQuery("select m from Member m where m.username = :username", Member.class)
+                .setParameter("username", username)
+                .getResultList().stream()
+                .findAny();
     }
 }
