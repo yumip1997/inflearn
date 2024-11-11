@@ -1,4 +1,4 @@
-package com.example.springbatch.job;
+package com.example.springbatch.hello.job;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
@@ -16,14 +16,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * desc: tasklet을 활용하여 Hello World를 출력
+ * run: --job.name=helloWorldJob
+ */
 @Configuration
 @RequiredArgsConstructor
 public class HelloWorldJobConfig {
 
     @Autowired
-    JobBuilderFactory jobBuilderFactory;
+    private JobBuilderFactory jobBuilderFactory;
+
     @Autowired
-    StepBuilderFactory stepBuilderFactory;
+    private StepBuilderFactory stepBuilderFactory;
 
     @Bean
     public Job helloWorldJob() {
@@ -52,5 +57,4 @@ public class HelloWorldJobConfig {
             }
         };
     }
-
 }
