@@ -179,3 +179,68 @@
         - CPU 캐시를 거치지 않고, 항상 메인 메모리에서 읽고 쓰도록 하기에 서능 저하가 발생할 수 있다.
 
       ⇒ 가시성이 꼭 필요한 경우 알맞은 변수에만 volatile을 써야한다.
+
+### 동기화
+
+- 동시성 문제
+
+  같은 자원에 여러 쓰레드가 동시에 접근할 때 발생하는 문제를 동시성 문제라고 한다.
+
+- 동시성 문제 예시
+
+  출금예제 : 1000원이 남아있는 계좌에서 두 개의 쓰레드가 800원을 출금하려는 작업을 시작 → 최종적으로 계좌에는 -600원 또는 800원이 두 번 출금되었는데도 200이 남는다.
+
+    ```java
+    package sync;
+    
+    public class Account {
+    
+        private int balance;
+    
+        public Account(int balance) {
+            this.balance = balance;
+        }
+    
+        public void withdraw(int amount) {
+            System.out.println("["+Thread.currentThread().getName()+"] 출금을 시작합니다. 현재 잔액: " + balance);
+            if(balance < amount) {
+                System.out.println("["+Thread.currentThread().getName()+"] 출금에 실패했습니다. (잔액이 부족)");
+                return;
+            }
+    
+            System.out.println("["+Thread.currentThread().getName()+"] 출금을 시도합니다.");
+            balance -= amount;
+            System.out.println("["+Thread.currentThread().getName()+"] 출금에 성공했습니다. 현재 잔액: " + balance);
+        }
+    
+        public int getBalance() {
+            return balance;
+        }
+    
+        public static void main(String[] args) throws InterruptedException {
+            Account bankAccount = new Account(1000);
+    
+            Thread t1 = new Thread(() -> bankAccount.withdraw(800), "T1");
+            Thread t2 = new Thread(() -> bankAccount.withdraw(800), "T2");
+    
+            t1.start();
+            t2.start();
+    
+            t1.join();            t2.join();
+    
+            System.out.println("최종 잔액 : " + bankAccount.getBalance());
+        }
+    }
+    
+    ```
+
+  CASE1 - T1 쓰레드 → T2 쓰레드
+
+    - 거의 동시에 if 조건을 확인하기에, 조건문을 빠져나간다.
+    - T1이 먼저 balance의 값을 200원으로 만든다.
+    - T2가 200인 balance에 다시 800원을 차감한다 → balance의 값은 -600이 된다.
+
+  CASE2 - 두 쓰레드가 동시에 실행될 떄
+
+    - T1/T2 동시에 balance를 1000으로 읽는다
+    - T1/T2 동시에 balance = balance - 200 로직 수행 → balance의 값은 200원이 된다
