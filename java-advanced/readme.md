@@ -258,6 +258,22 @@
       2. 나머지 쓰레드는 락을 획득할 때까지 대기 상태로 전환
       3. 락을 보유한 쓰레드가 synchronized 블록을 빠져나가면서 락을 반환
       4. 대기 중인 쓰레드 중 하나가 자동으로 락을 획득  
-      => 위 과정을 반복하며 한 번에 하나의 쓰레드만 접근할 수 있도록 보장  
-  - 
+      => 위 과정을 반복하며 한 번에 하나의 쓰레드만 접근할 수 있도록 보장
+- 사용법
+    - 메서드 : 메서드 전체 영역을 지정 (동기화가 불필요한 부분에도 지정될 수 있음)
+
+        ```java
+        public synchronized void withdraw(int amount) {
+            if (balance >= amount) balance -= amount;
+        }
+        ```
+    - 블록 : 동기화가 필요한 부분만 지정할 수 있음
+
+        ```java
+        public void withdraw(int amount) {
+            synchronized (this) { 
+                if (balance >= amount) balance -= amount; 
+            }
+        }
+        ```
    
