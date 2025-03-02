@@ -8,15 +8,19 @@ public class SyncAccount {
         this.balance = balance;
     }
 
-    public synchronized void withdraw(int amount) {
+    public void withdraw(int amount) {
         System.out.println("["+Thread.currentThread().getName()+"] 출금을 시작합니다. 현재 잔액: " + balance);
-        if(balance < amount) {
-            System.out.println("["+Thread.currentThread().getName()+"] 출금에 실패했습니다. (잔액이 부족)");
-            return;
+
+        synchronized (this) {
+            if(balance < amount) {
+                System.out.println("["+Thread.currentThread().getName()+"] 출금에 실패했습니다. (잔액이 부족)");
+                return;
+            }
+
+            System.out.println("["+Thread.currentThread().getName()+"] 출금을 시도합니다.");
+            balance -= amount;
         }
 
-        System.out.println("["+Thread.currentThread().getName()+"] 출금을 시도합니다.");
-        balance -= amount;
         System.out.println("["+Thread.currentThread().getName()+"] 출금에 성공했습니다. 현재 잔액: " + balance);
     }
 
