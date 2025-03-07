@@ -279,19 +279,35 @@
         ```
    
 ### 고급 동기화
-1. LockSupport
-LockSupport는 Java 1.5에서 추가된 동기화 유틸리티로, 기존 synchronized의 단점을 해결하고 보다 효율적인 스레드 제어를 가능하게 한다.
-- synchronized의 단점 
-  - 무한대기: 락을 획득할때까지 BLOCKED 상태로 무기한 대기  -> interrupt()를 호출해도 락을 획득하지 않는 이상 BLOCKED 상태를 벗어날 수 없다.
-  - 공정성: 락이 해제된 후 어떤 쓰레드가 락을 획득할지 예측X -> 특정 쓰레드가 계속 락을 획득하지 못할 수 있음
-  - 특정 쓰레드를 깨우는 기능 부재
+### 고급 동기화
+LockSupport, ReentrantLock => 기존 synchronizsd의 단점을 보안한 고급 동기화 기법
+- synchronized의 단점
+    - 무한대기: 락을 획득할때까지 BLOCKED 상태로 무기한 대기  -> interrupt()를 호출해도 락을 획득하지 않는 이상 BLOCKED 상태를 벗어날 수 없다.
+    - 공정성: 락이 해제된 후 어떤 쓰레드가 락을 획득할지 예측X -> 특정 쓰레드가 계속 락을 획득하지 못할 수 있음
+    - 특정 쓰레드를 깨우는 기능 부재
+
+1. LockSupport  
+   LockSupport는 Java 1.5에서 추가된 동기화 유틸리티로, 기존 synchronized의 단점을 해결하고 보다 효율적인 스레드 제어 가능
 - LockSupport의 개선점
-  - 무한대기 문제 해결
-    - `parkNanos(long nanos)`를 사용하면 타임아웃을 설정할 수 있어 무한 대기를 방지
-    - `park()` 호출 시 쓰레드는 WAITING 또는 TIMED_WAITING 상태에 들어감 -> interrupt()를 호출하여 RUNNABLE 상태로 전환 가능
-  - 특정 쓰레드 깨우기
-    - `unpark(Thread t)`를 통해 대기 중인 특정 쓰레드를 깨울 수 있음
+    - 무한대기 문제 해결
+        - `parkNanos(long nanos)`를 사용하면 타임아웃을 설정할 수 있어 무한 대기를 방지
+        - `park()` 호출 시 쓰레드는 WAITING 또는 TIMED_WAITING 상태에 들어감 -> interrupt()를 호출하여 RUNNABLE 상태로 전환 가능
+    - 특정 쓰레드 깨우기
+        - `unpark(Thread t)`를 통해 대기 중인 특정 쓰레드를 깨울 수 있음
 - 주요 메서드
-  - `park()` : 현재 쓰레드를 WAITING 상태로 전환하여 대기 시킴
-  - `parkNanos(long nanos)`: 현재 쓰레드를 지정된 나노초 동안만 대기시키면 대기 동안 TIMED_WAITING 상태로 전환됨
-  - `unpark(Thread t)`: park()로 대기 중인 특정 스레드를 깨워 RUNNABLE 상태로 만듦
+    - `park()` : 현재 쓰레드를 WAITING 상태로 전환하여 대기 시킴
+    - `parkNanos(long nanos)`: 현재 쓰레드를 지정된 나노초 동안만 대기시키면 대기 동안 TIMED_WAITING 상태로 전환됨
+    - `unpark(Thread t)`: park()로 대기 중인 특정 스레드를 깨워 RUNNABLE 상태로 만듦
+
+2. ReentrantLock  
+   ReentrantLock은 Java 1.5에 도입된 명시적 락 매커니즘으로 유연한 동기화 방법 제공
+- ReentrantLock의 개선점
+    - 공정성 문제 해결: 공정 모드 지원 -> 먼저 대기한 쓰레드가 먼저 락을 획득
+        - 공정모드의 특징
+            - 공정성 보장
+            - 기아 현상 방지: 모든 쓰레드가 언제가 락을 획득할 수 있도록 보장
+            - 성능 저하: 락을 획득하는 속도가 느려질 수 잇음
+- 주요 메서드
+    - `tryLock()`: 락 획득을 시도하고 즉시 성공 여부를 반환
+    - `tryLock(long time, TimeUnit unit)`: 지정된 시간 동안만 락 획득을 기다림
+    - `unlock()`: 락을 해제함
