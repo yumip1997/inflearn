@@ -353,4 +353,4 @@ LockSupport, ReentrantLock => 기존 synchronizsd의 단점을 보안한 고급 
             - 소비자1, 소비자2, 생산자 모두 깨어나 BLOCKED상태
             - 소비자1 락 획득 → 버퍼가 비어있어 다시 WAITING상태
             - 소비자2 락 획득 → 버퍼가 비어있어 다시 WAITING 상태
-            - 생산자 락 획득 →
+            - 생산자 락 획득 → 버퍼가 비어있어 작업을 수행하고 다시 `notifyAll()` 호출
