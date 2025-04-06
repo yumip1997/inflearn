@@ -329,7 +329,7 @@ LockSupport, ReentrantLock => 기존 synchronizsd의 단점을 보안한 고급 
         - 문제점: 버퍼가 가득 찼을 때, 생산자가 여유 공간이 생길 때까지 기다리지 않고 데이터 생산을 포기함
     - 소비자 우선
         - 문제점: 버퍼가 찰 때까지 기다리지 못하고 데이터 소비 포기
-- 해결책 - `wait()`, `notify()`
+- 해결책 1- `wait()`, `notify()`
     - 핵심원칙
         - 버퍼가 가득 찼을 때 생산자는 데이터 생산을 포기하지 않고 대기했다가 소비자가 데이터를 꺼내 여유 공간을 만들면 그 때 다시 생산 재개
         - 버퍼가 비었을 때 소비자는 데이터 소비를 포기하지 않고 대기 했다가 생산자가 데이터를 채워 소비 가능 상태가 되면 그 때 다시 소비 재개
@@ -340,17 +340,88 @@ LockSupport, ReentrantLock => 기존 synchronizsd의 단점을 보안한 고급 
     - 동작 과정
         - `wait()` 를 호출한 스레드는 락을 반납하고 스레드 대기 집합(Wait Set)에 들어감
         - `notify()` 로 깨어난 스레드는 락을 획득하기 위해 BLOCKED 상태가 되며 락을 획득한다면 실행 재개
-- 한계
-    - 원인
-        - 단일 대기 집합: 자바의 `wait()` 와 `notify()` 는 객체의 단일 모니터 락에 연관된 하나의 스레드 대기 집합 사용 → 생산자, 소비자 스레드가 모두 포함
-        - 임의 선택: `notify()` 는 대기 집합에서 스레드를 무작위로 선택해 깨움
+    - 한계
+        - 원인
+            - 단일 대기 집합: 자바의 `wait()` 와 `notify()` 는 객체의 단일 모니터 락에 연관된 하나의 스레드 대기 집합 사용 → 생산자, 소비자 스레드가 모두 포함
+            - 임의 선택: `notify()` 는 대기 집합에서 스레드를 무작위로 선택해 깨움
     - 한계
         - 버퍼가 비어있는 상황에서 소비자가 생산자가 아닌 다른 소비자를 깨워 다시 대기 상태로 돌아가는 비효율적인 상황 발생
         - 버퍼가 가득 차 있는 상황에서 생산자가 소비자가 아닌 다른 생산자를 깨워 다시 대기 상태로 돌아가는 비효율적인 상황 발생
     - 보완
         - `notifyAll()` 사용 → 모든 스레드를 깨워 조건에 따라 적합한 스레드가 작업을 수행
+            - 단점: 모든 스레드를 깨우므로 조건에 맞지 않는 스레드가 불필요하게 깨어나 다시 대기 상태로 돌아가는 오버헤드 발생 가능
         - 예시: 소비자1, 소비자2, 생산자 WAITING 상태, 버퍼는 비어있는 상황에서 `notifyAll()` 호출됨
             - 소비자1, 소비자2, 생산자 모두 깨어나 BLOCKED상태
             - 소비자1 락 획득 → 버퍼가 비어있어 다시 WAITING상태
             - 소비자2 락 획득 → 버퍼가 비어있어 다시 WAITING 상태
             - 생산자 락 획득 → 버퍼가 비어있어 작업을 수행하고 다시 `notifyAll()` 호출
+- 해결책2 - Lock
+    - 핵심원칙 (생산자, 소비자 대기 공간 분리)
+        - 생산자와 소비자의 대기 공간을 분리
+        - 생산자는 생산 완료 후 대기 중인 소비자를 깨우고, 소비자는 소비 완료 후 대기 중인 생산자를 깨워 효율적으로 문제 해결
+    - 동기화 도구
+        - `Lock`: 객체 수준의 synchronized보다 더 세밀한 락 제어 가능
+        - `Condition`: `Object.wait()/notify()`와 유사하지만, **여러 Condition 객체**를 통해 **대기 공간을 분리**할 수 있음
+    - 주요 메서드
+        - `await()`: `wait()`처럼 대기 상태로 진입 (현재 락 반납)
+        - `signal()`: 대기 중인 스레드 하나를 깨움
+        - `signalAll()`: 대기 중인 모든 스레드를 깨움
+    - 생산자-소비자 문제 해결 방식
+
+        ```java
+        Lock lock = new ReentrantLock();
+        
+        // 생산자용 대기 공간: 버퍼가 가득 찬 경우 생산자는 이곳에서 대기
+        Condition producerWaitQueue = lock.newCondition();
+        
+        // 소비자용 대기 공간: 버퍼가 비어 있는 경우 소비자는 이곳에서 대기
+        Condition consumerWaitQueue = lock.newCondition();
+        
+        // 생산자
+        lock.lock();
+        try {
+            while (buffer.isFull()) {
+                producerWaitQueue.await(); // 생산자는 생산할 수 있을 때까지 대기
+            }
+            buffer.offer(item); // 생산
+        
+            consumerWaitQueue.signal(); // 소비자 깨움
+        } finally {
+            lock.unlock();
+        }
+        
+        // 소비자
+        lock.lock();
+        try {
+            while (buffer.isEmpty()) {
+                consumerWaitQueue.await(); // 소비자는 소비할 수 있을 때까지 대기
+            }
+            String data = buffer.poll(); // 소비
+        
+            producerWaitQueue.signal(); // 생산자 깨움
+        } finally {
+            lock.unlock();
+        }
+        ```
+
+        - 버퍼가 가득 차면 → 생산자는 생산자 대기 공간에서 대기 : `producerWaitQueue.await()`
+        - 생산자가 생산을 완료하면 소비를 위해 소비자를 꺠움: `consumerWaitQueue.signal()`
+        - 버퍼가 비면 → 소비자는 소비자 대기 공간에서 대기: `consumerWaitQueue.await()`
+        - 소비자가 소비를 완료하면 생상을 위해 생산자를 꺠움: `producerWaitQueue.signal()`
+- 해결책3 - BlockingQueue
+    - 핵심원칙
+        - 자동 동기화 처리: BlockingQueue는 내부적으로 동기화 메커니즘(보통 ReentrantLock과 Condition 활용)을 내장하여, 생산자와 소비자 간의 대기와 깨어남을 자동으로 처리
+        - 코드 단순화: 개발자가 직접 동기화 로직을 작성할 필요 없이 상황에 맞는 메서드를 활용해 유연하게 대응
+    - 주요 메서드
+        - 대기 시 예외 발생
+            - `add()`: 큐에 데이터를 넣음, 큐가 가득 차면 대기 없이 IllegalStateException 예외 발생
+            - `remove()`: 큐에서 데이터를 제거함, 큐가 비어 있으면 대기 없이 NoSuchElementException 예외 발생
+        - 대기 시 즉시 반환
+            - `offer()`: 큐에 데이터를 넣음, 큐가 가득 차면 데이터를 넣지 않고 false를 반환
+            - `poll()`: 큐에서 데이터를 제거함, 큐가 비어 있으면 데이터를 반환하지 않고 null 반환
+        - 무한 대기 (Blocking)
+            - `put()`: 큐에 데이터를 넣음, 큐가 가득 차면 조건이 만족될 때까지 무한정 대기한 후 데이터를 삽입
+            - `take()`: 큐에서 데이터를 제거함, 큐가 비어 있으면 조건이 만족될 때까지 무한정 대기하여 데이터를 반환
+        - 시간 지정 대기 (Time-limited Blocking)
+            - `offer(E e, long timeout, TimeUnit unit)`: 큐에 데이터를 넣음, 큐가 가득 찼을 경우, 지정한 시간 동안 대기한 후에도 공간이 없으면 false 반환
+            - `poll(long timeout, TimeUnit unit)`: 큐에서 데이터를 제거함, 큐가 비어 있으면 지정한 시간 동안 대기한 후에도 데이터가 없으면 null 반환
