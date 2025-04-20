@@ -425,3 +425,48 @@ LockSupport, ReentrantLock => 기존 synchronizsd의 단점을 보안한 고급 
         - 시간 지정 대기 (Time-limited Blocking)
             - `offer(E e, long timeout, TimeUnit unit)`: 큐에 데이터를 넣음, 큐가 가득 찼을 경우, 지정한 시간 동안 대기한 후에도 공간이 없으면 false 반환
             - `poll(long timeout, TimeUnit unit)`: 큐에서 데이터를 제거함, 큐가 비어 있으면 지정한 시간 동안 대기한 후에도 데이터가 없으면 null 반환
+
+### 자바의 동시성 컬렉션
+- **멀티쓰레드 환경에서 동시성 컬렉션을 사용하지 않았을 경우**
+    - 발생할 수 있는 문제상황
+        - 여러 스레드가 `ArrayList`에 동시에 `add()`를 실행하면 내부 `size` 갱신이 충돌해 일부 값이 누락되거나, `ConcurrentModificationException`이 발생할 수 있습니다.
+        - 예시
+
+        ```java
+        import java.util.ArrayList;
+        import java.util.List;
+        
+        public class SimpleRaceExample {
+            public static void main(String[] args) throws InterruptedException {
+                List<Integer> list = new ArrayList<>();
+        
+                Runnable adder = () -> {
+                    for (int i = 0; i < 1000; i++) {
+                        list.add(i);
+                    }
+                };
+        
+                Thread t1 = new Thread(adder);
+                Thread t2 = new Thread(adder);
+        
+                t1.start();
+                t2.start();
+                t1.join();
+                t2.join();
+        
+                // 기대: 2000, 실제: 1800~1999 사이
+                System.out.println("Expected size: 2000, Actual size: " + list.size());
+            }
+        }
+        ```
+
+- **자바의 동시성 컬렉션**
+    - **List**
+        - `CopyOnWriteArrayList` : 읽기 작업이 많고 수정이 적은 환경에서 안전한 반복자 제공
+        - `Collections.synchronizedList(List<E> list)` : 기존 리스트를 래핑해 모든 메서드 호출 시 동기화
+    - **Set**
+        - `CopyOnWriteArraySet` : 내부적으로 `CopyOnWriteArrayList` 사용, 읽기 위주 환경에 적합
+        - `ConcurrentSkipListSet` : Skip List 기반으로 높은 동시성과 정렬 기능 제공
+    - **Map**
+        - `ConcurrentHashMap` : 락 분할(lock‑striping)과 CAS로 뛰어난 동시성 성능
+        - `ConcurrentSkipListMap` : Skip List 기반의 정렬된 Map 구현체
