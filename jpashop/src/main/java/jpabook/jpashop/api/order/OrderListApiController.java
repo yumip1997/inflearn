@@ -1,10 +1,9 @@
-package jpabook.jpashop.api;
+package jpabook.jpashop.api.order;
 
 import jpabook.jpashop.domain.Order;
 import jpabook.jpashop.domain.OrderSearch;
 import jpabook.jpashop.dto.OrderSimpleQueryDto;
 import jpabook.jpashop.repository.OrderRepository;
-import jpabook.jpashop.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,20 +14,19 @@ import static java.util.stream.Collectors.toList;
 
 @RestController
 @RequiredArgsConstructor
-public class OrderSimpleApiController {
+public class OrderListApiController {
 
-    private final OrderService orderService;
     private final OrderRepository orderRepository;
 
+    // 엔티티를 그대로 노출
+    // JsonIgnore 필요, 지연로딩으로 N+1 문제
     @GetMapping("/api/v1/simple-orders")
     public List<Order> ordersV1(){
         return orderRepository.findAllByString(new OrderSearch());
     }
 
-    /**
-     * V2. 엔티티를 조회해서 DTO로 변환(fetch join 사용X)
-     * - 단점: 지연로딩으로 쿼리 N번 호출
-     */
+    // DTO 변환 노출
+    // 지연로딩으로 N+1 문제
     @GetMapping("/api/v2/simple-orders")
     public List<OrderSimpleQueryDto> ordersV2() {
         // N+1 문제 발생
@@ -40,6 +38,7 @@ public class OrderSimpleApiController {
                 .collect(toList());
     }
 
+    // fetch join 으로 N+1 문제 해결
     @GetMapping("/api/v3/simple-orders")
     public List<OrderSimpleQueryDto> ordersV3() {
         List<Order> allWithMemberDelivery = orderRepository.findAllWithMemberDelivery();
