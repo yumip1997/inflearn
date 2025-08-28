@@ -1,0 +1,20 @@
+### 중복 조회되는 케이스
+GET http://localhost:8080/api/v2/orders
+
+###
+GET http://localhost:8080/api/v3/orders
+
+###
+GET http://localhost:8080/api/v3.1/orders?
+    offset={{$random.integer(1)}}&
+    limit={{$random.integer(100)}}
+
+
+### DTO 반환 케이스 n+1
+GET http://localhost:8080/api/v4/orders
+
+### DTO 반환 케이스 최적화
+GET http://localhost:8080/api/v5/orders
+
+### DTO 반환 케이스 최적화 - flat 하게
+GET http://localhost:8080/api/v6/orders
